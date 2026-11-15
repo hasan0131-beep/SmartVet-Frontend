@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('ai_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/dashboard" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('back_dashboard') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title"><i class="fa-solid fa-robot"></i> {{ t('ai_title') }}</h1>
+
+<div class="chat-wrap">
+
+    <div class="chat-disclaimer">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        {{ t('ai_disclaimer') }}
+    </div>
+
+    <div id="chat-box" class="chat-box">
+        <div class="chat-message bot-message">{{ t('ai_greeting') }}</div>
+    </div>
+
+    <div class="chat-input-row">
+        <input type="text" id="chat-input" placeholder="{{ t('ai_placeholder') }}" autocomplete="off">
+        <button id="chat-send" onclick="sendChatMessage()">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </div>
+
+</div>
+
+<script>window.I18N = {{ i18n_js|tojson }};</script>
+<script src="{{ url_for('static', filename='js/ai_chat.js') }}"></script>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('prof_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/dashboard" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('back_dashboard') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title"><i class="fa-solid fa-id-card"></i> {{ t('prof_title') }}</h1>
+
+<div class="profile-wrap">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="{% if category == 'error' %}flash-error{% else %}admin-flash{% endif %}">{{ message }}</div>
+        {% endfor %}
+    {% endwith %}
+
+    <div class="profile-head">
+        <div class="profile-avatar">{{ (p.name or '?')[:1]|upper }}</div>
+
+        <div class="profile-head-info">
+            <h2>{{ p.name }}</h2>
+            <p class="profile-email">{{ p.email }}</p>
+            <span class="role-badge {% if p.role == 'admin' %}role-admin{% else %}role-user{% endif %}">
+                {% if p.role == 'admin' %}{{ t('role_admin') }}{% else %}{{ t('role_user') }}{% endif %}
+            </span>
+        </div>
+
+        <div class="profile-progress">
+            <div class="progress-label">
+                <span>{{ t('prof_complete_label') }}</span>
+                <strong>{{ percent }}%</strong>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: {{ percent }}%"></div></div>
+            {% if percent < 100 %}
+            <p class="progress-hint">{{ t('prof_complete_hint') }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-card">
+        <h2><i class="fa-solid fa-user"></i> {{ t('prof_personal_title') }}</h2>
+        <p class="profile-note"><i class="fa-solid fa-lock"></i> {{ t('prof_privacy') }}</p>
+
+        <form method="POST" action="/profile/update">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+
+                <label class="form-field">
+                    <span>{{ t('prof_name') }} *</span>
+                    <input type="text" name="name" value="{{ p.name or '' }}" maxlength="100" required>
+                </label>
+
+                <label class="form-field">
+                    <span>{{ t('prof_phone') }} <em class="optional">({{ t('prof_optional') }})</em></span>
+                    <input type="tel" name="phone" value="{{ p.phone or '' }}" maxlength="20">
+                </label>
+
+                <label class="form-field">
+                    <span>{{ t('prof_district') }} <em class="optional">({{ t('prof_optional') }})</em></span>
+                    <select name="district">
+                        <option value="">{{ t('prof_choose_district') }}</option>
+                        {% for key, label in districts %}
+                        <option value="{{ key }}" {% if p.district == key %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="form-field">
+                    <span>{{ t('prof_address') }} <em class="optional">({{ t('prof_optional') }})</em></span>
+                    <input type="text" name="address" value="{{ p.address or '' }}" maxlength="200">
+                </label>
+
+                <label class="form-field">
+                    <span>{{ t('prof_user_type') }} <em class="optional">({{ t('prof_optional') }})</em></span>
+                    <select name="user_type">
+                        <option value="">{{ t('prof_choose_type') }}</option>
+                        {% for ut in user_types %}
+                        <option value="{{ ut }}" {% if p.user_type == ut %}selected{% endif %}>{{ t('ut_' ~ ut) }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+
+                <label class="form-field">
+                    <span>{{ t('prof_farm_name') }} <em class="optional">({{ t('prof_optional') }})</em></span>
+                    <input type="text" name="farm_name" value="{{ p.farm_name or '' }}" maxlength="150">
+                </label>
+
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit"><i class="fa-solid fa-floppy-disk"></i> {{ t('prof_save') }}</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="profile-card">
+        <h2><i class="fa-solid fa-chart-line"></i> {{ t('prof_activity_title') }}</h2>
+
+        {% if total_checks > 0 %}
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <strong>{{ total_checks }}</strong>
+                <span>{{ t('prof_checks_total') }}</span>
+            </div>
+            <div class="profile-stat profile-stat-wide">
+                <span>{{ t('prof_last_check') }}</span>
+                <strong class="profile-last">{{ last_check.animal }}: {{ last_check.disease }}</strong>
+                <span class="profile-last-date">{{ last_check.date }}</span>
+            </div>
+        </div>
+        {% else %}
+        <p class="profile-empty">{{ t('prof_no_activity') }}</p>
+        {% endif %}
+
+        <a href="/history" class="admin-tool-link" style="margin-top:14px;">
+            <i class="fa-solid fa-clock-rotate-left"></i> {{ t('prof_view_history') }}
+        </a>
+    </div>
+
+    <div class="profile-card">
+        <h2><i class="fa-solid fa-envelope"></i> {{ t('prof_account_title') }}</h2>
+
+        <label class="form-field">
+            <span>{{ t('prof_email') }}</span>
+            <input type="email" value="{{ p.email }}" readonly>
+        </label>
+        <p class="profile-note" style="margin-top:6px;">{{ t('prof_email_note') }}</p>
+    </div>
+
+    <div class="profile-card" id="password">
+        <h2><i class="fa-solid fa-key"></i> {{ t('prof_pw_title') }}</h2>
+
+        <form method="POST" action="/profile/password">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-grid">
+
+                <label class="form-field form-field-wide">
+                    <span>{{ t('prof_pw_current') }}</span>
+                    <input type="password" name="current_password" autocomplete="current-password" required>
+                </label>
+
+                <label class="form-field">
+                    <span>{{ t('prof_pw_new') }}</span>
+                    <input type="password" name="new_password" autocomplete="new-password" minlength="6" required>
+                    <small class="profile-note">{{ t('prof_pw_hint') }}</small>
+                </label>
+
+                <label class="form-field">
+                    <span>{{ t('prof_pw_confirm') }}</span>
+                    <input type="password" name="confirm_password" autocomplete="new-password" minlength="6" required>
+                </label>
+
+            </div>
+
+            <div class="form-buttons">
+                <button type="submit"><i class="fa-solid fa-key"></i> {{ t('prof_pw_btn') }}</button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<footer class="site-footer">
+    <p>{{ t('site_footer') }}</p>
+    <p class="footer-note">{{ t('site_disclaimer') }}</p>
+</footer>
+
+</body>
+</html>

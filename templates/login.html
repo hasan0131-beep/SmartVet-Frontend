@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('login_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="auth-wrap">
+    <div class="login-box">
+        <h1><i class="fa-solid fa-right-to-bracket"></i> {{ t('login_title') }}</h1>
+
+        {% if error %}
+            <p class="auth-error">{{ error }}</p>
+        {% endif %}
+
+        <form method="POST" action="/login">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="email" name="email" placeholder="{{ t('login_email_ph') }}" required>
+            <input type="password" name="password" placeholder="{{ t('login_password_ph') }}" required>
+            <button type="submit">{{ t('login_btn') }}</button>
+        </form>
+
+        <p class="auth-switch">
+            {{ t('login_no_account') }} <a href="/register">{{ t('login_register_link') }}</a>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>

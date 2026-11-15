@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('med_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/dashboard" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('back_dashboard') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title"><i class="fa-solid fa-pills"></i> {{ t('med_title') }}</h1>
+<p class="history-intro">{{ t('med_intro') }}</p>
+
+<div class="med-warning">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span>{{ t('med_warning') }}</span>
+</div>
+
+<div class="med-toolbar">
+
+    <div class="med-search">
+        <input type="text" id="med-search" placeholder="{{ t('med_search_ph') }}" autocomplete="off">
+    </div>
+
+    <div class="chip-row">
+        <span class="chip-label">{{ t('med_filter_animal') }}:</span>
+        <div id="animal-chips" class="chip-group">
+            <button type="button" class="chip active" data-value="all">{{ t('med_filter_all') }}</button>
+            {% for a in animals %}
+            <button type="button" class="chip" data-value="{{ a }}">{{ t('animal_' ~ a) }}</button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="chip-row">
+        <span class="chip-label">{{ t('med_filter_type') }}:</span>
+        <div id="access-chips" class="chip-group">
+            <button type="button" class="chip active" data-value="all">{{ t('med_filter_all') }}</button>
+            <button type="button" class="chip" data-value="vet">{{ t('med_access_vet') }}</button>
+            <button type="button" class="chip" data-value="general">{{ t('med_access_general') }}</button>
+            <button type="button" class="chip" data-value="avoid">{{ t('med_access_avoid') }}</button>
+        </div>
+    </div>
+
+</div>
+
+<div class="med-grid">
+    {% for m in medicines %}
+    <div class="med-card access-{{ m.access }}"
+         data-animals="{{ m.animals|join(',') }}"
+         data-access="{{ m.access }}"
+         data-search="{{ m.search }}">
+
+        <div class="med-card-head">
+            <div>
+                <h3 class="med-name">{{ m.name }}</h3>
+                <span class="med-category">{{ m.category }}</span>
+            </div>
+            <span class="med-badge med-badge-{{ m.access }}">{{ t('med_access_' ~ m.access) }}</span>
+        </div>
+
+        <div class="med-section">
+            <strong>{{ t('med_uses') }}</strong>
+            <p>{{ m.uses }}</p>
+        </div>
+
+        <div class="med-section">
+            <strong>{{ t('med_caution') }}</strong>
+            <p>{{ m.caution }}</p>
+        </div>
+
+        {% if m.withdrawal %}
+        <div class="med-section med-withdrawal">
+            <strong>{{ t('med_withdrawal') }}</strong>
+            <p>{{ m.withdrawal }}</p>
+        </div>
+        {% endif %}
+
+        <div class="med-animals">
+            <span class="med-animals-label">{{ t('med_for_animals') }}:</span>
+            {% for a in m.animals %}
+            <span class="med-animal-tag">{{ t('animal_' ~ a) }}</span>
+            {% endfor %}
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+<div id="med-empty" class="history-empty" style="display:none;">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <p>{{ t('med_no_results') }}</p>
+</div>
+
+<footer class="site-footer">
+    <p>{{ t('site_footer') }}</p>
+    <p class="footer-note">{{ t('site_disclaimer') }}</p>
+</footer>
+
+<script>
+(function () {
+    var state = { animal: "all", access: "all", q: "" };
+    var cards = document.querySelectorAll(".med-card");
+    var empty = document.getElementById("med-empty");
+    var search = document.getElementById("med-search");
+
+    function apply() {
+        var shown = 0;
+        cards.forEach(function (card) {
+            var animals = (card.getAttribute("data-animals") || "").split(",");
+            var okAnimal = state.animal === "all" || animals.indexOf(state.animal) !== -1;
+            var okAccess = state.access === "all" || card.getAttribute("data-access") === state.access;
+            var okSearch = state.q === "" || (card.getAttribute("data-search") || "").indexOf(state.q) !== -1;
+            var visible = okAnimal && okAccess && okSearch;
+            card.style.display = visible ? "" : "none";
+            if (visible) { shown++; }
+        });
+        empty.style.display = shown === 0 ? "block" : "none";
+    }
+
+    function bindChips(groupId, key) {
+        var group = document.getElementById(groupId);
+        group.querySelectorAll(".chip").forEach(function (chip) {
+            chip.addEventListener("click", function () {
+                group.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("active"); });
+                chip.classList.add("active");
+                state[key] = chip.getAttribute("data-value");
+                apply();
+            });
+        });
+    }
+
+    bindChips("animal-chips", "animal");
+    bindChips("access-chips", "access");
+
+    search.addEventListener("input", function () {
+        state.q = search.value.trim().toLowerCase();
+        apply();
+    });
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('home_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<header class="header">
+    <h1><i class="fa-solid fa-paw"></i> SmartVet BD</h1>
+    <p>{{ t('home_tagline') }}</p>
+
+    {% if current_user.is_authenticated %}
+        <a href="/dashboard" class="hero-btn">{{ t('home_cta_dashboard') }}</a>
+    {% else %}
+        <a href="/register" class="hero-btn">{{ t('home_cta_start') }}</a>
+    {% endif %}
+</header>
+
+<h2 class="section-title">{{ t('home_why') }}</h2>
+
+<div class="feature-container">
+
+    <div class="feature-card">
+        <i class="fa-solid fa-magnifying-glass fa-2x" style="color:var(--turmeric-dark)"></i>
+        <h3>{{ t('home_f1_title') }}</h3>
+        <p>{{ t('home_f1_desc') }}</p>
+    </div>
+
+    <div class="feature-card">
+        <i class="fa-solid fa-shield-heart fa-2x" style="color:var(--turmeric-dark)"></i>
+        <h3>{{ t('home_f2_title') }}</h3>
+        <p>{{ t('home_f2_desc') }}</p>
+    </div>
+
+    <div class="feature-card">
+        <i class="fa-solid fa-language fa-2x" style="color:var(--turmeric-dark)"></i>
+        <h3>{{ t('home_f3_title') }}</h3>
+        <p>{{ t('home_f3_desc') }}</p>
+    </div>
+
+</div>
+
+<h2 class="section-title">{{ t('home_animals_title') }}</h2>
+
+<div class="animal-container">
+    {% for a in animals %}
+    <div class="animal-card" style="cursor:default;">
+        <img src="{{ url_for('static', filename='images/' ~ (a|lower) ~ '.png') }}" alt="{{ t('animal_' ~ a) }}">
+        <h2>{{ t('animal_' ~ a) }}</h2>
+    </div>
+    {% endfor %}
+</div>
+
+<footer class="site-footer">
+    <p>{{ t('site_footer') }}</p>
+    <p class="footer-note">{{ t('site_disclaimer') }}</p>
+</footer>
+
+</body>
+</html>

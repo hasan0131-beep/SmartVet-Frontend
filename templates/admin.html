@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('admin_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/dashboard" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('back_dashboard') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title"><i class="fa-solid fa-user-shield"></i> {{ t('admin_title') }}</h1>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="admin-flash">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="admin-tools">
+    <a href="/admin/vets" class="admin-tool-link">
+        <i class="fa-solid fa-user-doctor"></i> {{ t('admin_manage_vets') }}
+    </a>
+</div>
+
+<div class="admin-stats">
+    <div class="admin-stat-card">
+        <i class="fa-solid fa-users"></i>
+        <h3>{{ users|length }}</h3>
+        <p>{{ t('admin_stat_users') }}</p>
+    </div>
+    <div class="admin-stat-card">
+        <i class="fa-solid fa-clock-rotate-left"></i>
+        <h3>{{ history_count }}</h3>
+        <p>{{ t('admin_stat_checks') }}</p>
+    </div>
+    <div class="admin-stat-card">
+        <i class="fa-solid fa-virus"></i>
+        <h3>{{ disease_count }}</h3>
+        <p>{{ t('admin_stat_diseases') }}</p>
+    </div>
+</div>
+
+<h2 class="section-title">{{ t('admin_users_list') }}</h2>
+
+<div class="admin-table-wrap">
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>{{ t('admin_col_id') }}</th>
+                <th>{{ t('admin_col_name') }}</th>
+                <th>{{ t('admin_col_email') }}</th>
+                <th>{{ t('admin_col_role') }}</th>
+                <th>{{ t('admin_col_action') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u[0] }}</td>
+                <td>{{ u[1] }}</td>
+                <td>{{ u[2] }}</td>
+                <td>
+                    {% if u[3] == 'admin' %}
+                        <span class="role-badge role-admin">{{ t('role_admin') }}</span>
+                    {% else %}
+                        <span class="role-badge role-user">{{ t('role_user') }}</span>
+                    {% endif %}
+                </td>
+                <td class="admin-actions">
+                    {% if u[0] != current_user.id %}
+
+                        {% if u[3] == 'admin' %}
+                        <form method="POST" action="/admin/set_role/{{ u[0] }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="role" value="user">
+                            <button type="submit" class="btn-small btn-outline">{{ t('admin_remove_admin') }}</button>
+                        </form>
+                        {% else %}
+                        <form method="POST" action="/admin/set_role/{{ u[0] }}">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="role" value="admin">
+                            <button type="submit" class="btn-small">{{ t('admin_make_admin') }}</button>
+                        </form>
+                        {% endif %}
+
+                        <form method="POST" action="/admin/delete/{{ u[0] }}" onsubmit='return confirm({{ t("admin_confirm_delete")|tojson }});'>
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn-small btn-danger">{{ t('admin_delete') }}</button>
+                        </form>
+
+                    {% else %}
+                        <span class="admin-self">{{ t('admin_you') }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('animal_' ~ animal) }} {{ t('detect_suffix') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/dashboard" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('back_dashboard') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title">
+    {% if animal == "Cow" %}<i class="fa-solid fa-cow"></i>
+    {% elif animal == "Chicken" %}<i class="fa-solid fa-kiwi-bird"></i>
+    {% elif animal == "Dog" %}<i class="fa-solid fa-dog"></i>
+    {% elif animal == "Cat" %}<i class="fa-solid fa-cat"></i>
+    {% elif animal == "Pigeon" %}<i class="fa-solid fa-dove"></i>
+    {% elif animal == "Fish" %}<i class="fa-solid fa-fish"></i>
+    {% else %}<i class="fa-solid fa-paw"></i>
+    {% endif %}
+    {{ t('animal_' ~ animal) }} {{ t('detect_suffix') }}
+</h1>
+
+<div class="animal-detect-card">
+
+    <div class="animal-image">
+        <img src="{{ url_for('static', filename='images/' ~ (animal|lower) ~ '.png') }}" alt="{{ t('animal_' ~ animal) }}">
+    </div>
+
+    <h3 class="symptoms-heading">{{ t('select_symptoms') }}</h3>
+
+    <div class="symptoms">
+        {% for s in symptoms %}
+        <label><input type="checkbox" value="{{ s }}"> {{ t('sym_' ~ s) }}</label>
+        {% endfor %}
+    </div>
+
+    <button id="check-btn" onclick="searchDisease('{{ animal }}')">
+        <i class="fa-solid fa-magnifying-glass"></i> {{ t('check_btn') }}
+    </button>
+
+    <p class="detect-hint">{{ t('detect_note') }}</p>
+
+    <div id="result"></div>
+
+</div>
+
+<script>window.I18N = {{ i18n_js|tojson }};</script>
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+</body>
+</html>

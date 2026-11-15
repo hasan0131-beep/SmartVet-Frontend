@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('av_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/admin" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('admin_title') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title"><i class="fa-solid fa-user-doctor"></i> {{ t('av_title') }}</h1>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="admin-flash">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="med-warning" style="background:#FFF3E0; border-color:var(--turmeric); color:var(--turmeric-dark);">
+    <i class="fa-solid fa-circle-info"></i>
+    <span>{{ t('av_consent') }}</span>
+</div>
+
+{% set e = edit_vet or {} %}
+
+<div class="admin-vet-form-wrap">
+    <form method="POST" action="/admin/vets/save" class="admin-vet-form">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <h2>{% if edit_vet %}{{ t('av_edit_title') }}{% else %}{{ t('av_add_title') }}{% endif %}</h2>
+
+        {% if edit_vet %}
+        <input type="hidden" name="id" value="{{ e.get('id') }}">
+        {% endif %}
+
+        <div class="form-grid">
+
+            <label class="form-field">
+                <span>{{ t('av_name') }} *</span>
+                <input type="text" name="name" value="{{ e.get('name') or '' }}" maxlength="100" required>
+            </label>
+
+            <label class="form-field">
+                <span>{{ t('av_qualification') }}</span>
+                <input type="text" name="qualification" value="{{ e.get('qualification') or '' }}" maxlength="100">
+            </label>
+
+            <label class="form-field">
+                <span>{{ t('av_clinic') }}</span>
+                <input type="text" name="clinic" value="{{ e.get('clinic') or '' }}" maxlength="150">
+            </label>
+
+            <label class="form-field">
+                <span>{{ t('av_district') }} *</span>
+                <select name="district" required>
+                    <option value="">{{ t('av_choose_district') }}</option>
+                    {% for key, label in districts %}
+                    <option value="{{ key }}" {% if e.get('district') == key %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+
+            <label class="form-field">
+                <span>{{ t('av_address') }}</span>
+                <input type="text" name="address" value="{{ e.get('address') or '' }}" maxlength="200">
+            </label>
+
+            <label class="form-field">
+                <span>{{ t('av_phone') }} *</span>
+                <input type="tel" name="phone" value="{{ e.get('phone') or '' }}" maxlength="20" required>
+            </label>
+
+            <label class="form-field form-field-wide">
+                <span>{{ t('av_hours') }}</span>
+                <input type="text" name="hours" value="{{ e.get('hours') or '' }}" maxlength="100">
+            </label>
+
+        </div>
+
+        <div class="form-field">
+            <span>{{ t('av_animals') }}</span>
+            <div class="check-grid">
+                {% for a in animals %}
+                <label class="check-row">
+                    <input type="checkbox" name="animals" value="{{ a }}" {% if a in (e.get('animals') or []) %}checked{% endif %}>
+                    {{ t('animal_' ~ a) }}
+                </label>
+                {% endfor %}
+            </div>
+        </div>
+
+        <label class="check-row" style="margin-top:12px;">
+            <input type="checkbox" name="emergency_24h" value="1" {% if e.get('emergency_24h') %}checked{% endif %}>
+            {{ t('av_emergency') }}
+        </label>
+
+        <div class="form-buttons">
+            <button type="submit"><i class="fa-solid fa-floppy-disk"></i> {{ t('av_save') }}</button>
+            {% if edit_vet %}
+            <a href="/admin/vets" class="vet-clear">{{ t('av_cancel') }}</a>
+            {% endif %}
+        </div>
+
+    </form>
+</div>
+
+<h2 class="section-title">{{ t('av_list_title') }}</h2>
+
+<div class="admin-table-wrap">
+    {% if vets %}
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>{{ t('av_col_name') }}</th>
+                <th>{{ t('av_col_district') }}</th>
+                <th>{{ t('av_col_phone') }}</th>
+                <th>{{ t('av_col_action') }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vets %}
+            <tr>
+                <td>
+                    <strong>{{ v.name }}</strong>
+                    {% if v.clinic %}<br><span style="color:#8a8672; font-size:.82rem;">{{ v.clinic }}</span>{% endif %}
+                </td>
+                <td>{{ v.district }}</td>
+                <td>{{ v.phone }}</td>
+                <td class="admin-actions">
+                    <a href="/admin/vets?edit={{ v.id }}" class="btn-small btn-outline" style="text-decoration:none; display:inline-block;">{{ t('av_edit') }}</a>
+                    <form method="POST" action="/admin/vets/delete/{{ v.id }}" onsubmit='return confirm({{ t("av_confirm_delete")|tojson }});'>
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn-small btn-danger">{{ t('av_delete') }}</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="history-empty" style="margin-top:0;">
+        <p>{{ t('av_none') }}</p>
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

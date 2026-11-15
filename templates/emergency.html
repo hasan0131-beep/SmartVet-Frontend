@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('em_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/dashboard" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('back_dashboard') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title"><i class="fa-solid fa-truck-medical"></i> {{ t('em_title') }}</h1>
+
+<div class="emergency-disclaimer">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    {{ t('em_disclaimer') }}
+</div>
+
+<div class="emergency-grid">
+
+    <div class="emergency-card">
+        <i class="fa-solid fa-temperature-high"></i>
+        <h3>{{ t('em_fever_title') }}</h3>
+        <p>{{ t('em_fever_text') }}</p>
+    </div>
+
+    <div class="emergency-card">
+        <i class="fa-solid fa-lungs"></i>
+        <h3>{{ t('em_breath_title') }}</h3>
+        <p>{{ t('em_breath_text') }}</p>
+    </div>
+
+    <div class="emergency-card">
+        <i class="fa-solid fa-droplet"></i>
+        <h3>{{ t('em_bleed_title') }}</h3>
+        <p>{{ t('em_bleed_text') }}</p>
+    </div>
+
+    <div class="emergency-card">
+        <i class="fa-solid fa-poo"></i>
+        <h3>{{ t('em_diarrhea_title') }}</h3>
+        <p>{{ t('em_diarrhea_text') }}</p>
+    </div>
+
+    <div class="emergency-card">
+        <i class="fa-solid fa-skull-crossbones"></i>
+        <h3>{{ t('em_poison_title') }}</h3>
+        <p>{{ t('em_poison_text') }}</p>
+    </div>
+
+    <div class="emergency-card">
+        <i class="fa-solid fa-bone"></i>
+        <h3>{{ t('em_injury_title') }}</h3>
+        <p>{{ t('em_injury_text') }}</p>
+    </div>
+
+</div>
+
+<footer class="site-footer">
+    <p>{{ t('site_footer') }}</p>
+    <p class="footer-note">{{ t('site_disclaimer') }}</p>
+</footer>
+
+</body>
+</html>

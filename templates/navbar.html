@@ -1,0 +1,35 @@
+﻿<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<nav class="navbar">
+    <a href="/" class="navbar-logo">
+        <i class="fa-solid fa-paw"></i> SmartVet
+    </a>
+
+    <div class="navbar-links">
+        <a href="/">{{ t('nav_home') }}</a>
+
+        {% if current_user.is_authenticated %}
+            <a href="/dashboard">{{ t('nav_dashboard') }}</a>
+            <a href="/vets">{{ t('nav_vets') }}</a>
+            <a href="/medicines">{{ t('nav_medicines') }}</a>
+            <a href="/history">{{ t('nav_history') }}</a>
+            <a href="/ai-chat"><i class="fa-solid fa-robot"></i> {{ t('nav_ai') }}</a>
+
+            {% if current_user.is_admin %}
+                <a href="/admin"><i class="fa-solid fa-user-shield"></i> {{ t('nav_admin') }}</a>
+            {% endif %}
+
+            <a href="/profile" class="navbar-user" title="{{ t('nav_profile') }}">
+                <i class="fa-solid fa-circle-user"></i> {{ current_user.name }}
+            </a>
+            <a href="/logout" class="navbar-btn">{{ t('nav_logout') }}</a>
+        {% else %}
+            <a href="/login" class="navbar-btn-outline">{{ t('nav_login') }}</a>
+            <a href="/register" class="navbar-btn">{{ t('nav_register') }}</a>
+        {% endif %}
+
+        <a href="/set_lang/{{ 'en' if lang == 'bn' else 'bn' }}" class="lang-switch" title="{{ t('lang_switch_title') }}">
+            <i class="fa-solid fa-globe"></i> {{ t('lang_switch_label') }}
+        </a>
+    </div>
+</nav>

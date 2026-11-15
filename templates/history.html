@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('hist_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/dashboard" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('back_dashboard') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title"><i class="fa-solid fa-clock-rotate-left"></i> {{ t('hist_title') }}</h1>
+<p class="history-intro">{{ t('hist_intro') }}</p>
+
+{% if records %}
+
+<div class="history-list">
+    {% for r in records %}
+    <div class="history-item">
+
+        <img class="history-thumb"
+             src="{{ url_for('static', filename='images/' ~ (r.animal_key|lower) ~ '.png') }}"
+             alt="{{ r.animal }}"
+             onerror="this.style.display='none'">
+
+        <div class="history-body">
+            <div class="history-top">
+                <h3>{{ r.animal }}</h3>
+                <span class="history-date"><i class="fa-regular fa-clock"></i> {{ r.date }}</span>
+            </div>
+
+            <p class="history-symptoms">
+                <strong>{{ t('hist_col_symptoms') }}:</strong> {{ r.symptoms|join(', ') }}
+            </p>
+
+            <p class="history-result">
+                <strong>{{ t('hist_col_result') }}:</strong>
+                {% if r.matched %}
+                    <span class="history-disease">{{ r.disease }}</span>
+                {% else %}
+                    <span class="history-nomatch">{{ r.disease }}</span>
+                {% endif %}
+            </p>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+
+<div class="history-empty">
+    <i class="fa-solid fa-folder-open"></i>
+    <p>{{ t('hist_empty') }}</p>
+    <a href="/dashboard" class="hero-btn">{{ t('hist_empty_cta') }}</a>
+</div>
+
+{% endif %}
+
+<footer class="site-footer">
+    <p>{{ t('site_footer') }}</p>
+    <p class="footer-note">{{ t('site_disclaimer') }}</p>
+</footer>
+
+</body>
+</html>

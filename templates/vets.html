@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ t('vets_page_title') }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+{% include 'navbar.html' %}
+
+<div class="back-link-wrap">
+    <a href="/dashboard" class="back-link">
+        <i class="fa-solid fa-arrow-left"></i> {{ t('back_dashboard') }}
+    </a>
+</div>
+
+<h1 class="dashboard-title"><i class="fa-solid fa-user-doctor"></i> {{ t('vets_title') }}</h1>
+<p class="history-intro">{{ t('vets_intro') }}</p>
+
+<div class="vet-wrap">
+
+    <div class="vet-gov">
+        <i class="fa-solid fa-building-columns vet-gov-icon"></i>
+        <div class="vet-gov-text">
+            <h3>{{ t('vets_gov_title') }}</h3>
+            <p>{{ t('vets_gov_hotline') }}</p>
+            <p>{{ t('vets_gov_note') }}</p>
+        </div>
+        <a href="tel:16358" class="vet-call-btn"><i class="fa-solid fa-phone"></i> {{ t('vets_gov_call') }}</a>
+    </div>
+
+    <form method="GET" action="/vets" class="vet-filter">
+        <div class="vet-filter-grid">
+
+            <select name="district" aria-label="{{ t('vets_filter_district') }}">
+                <option value="">{{ t('vets_all_districts') }}</option>
+                {% for key, label in districts %}
+                <option value="{{ key }}" {% if sel_district == key %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="animal" aria-label="{{ t('vets_filter_animal') }}">
+                <option value="">{{ t('vets_all_animals') }}</option>
+                {% for a in animals %}
+                <option value="{{ a }}" {% if sel_animal == a %}selected{% endif %}>{{ t('animal_' ~ a) }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="q" value="{{ q }}" placeholder="{{ t('vets_search_ph') }}" autocomplete="off">
+
+        </div>
+
+        <div class="vet-filter-buttons">
+            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> {{ t('vets_search_btn') }}</button>
+            {% if sel_district or sel_animal or q %}
+            <a href="/vets" class="vet-clear">{{ t('vets_clear') }}</a>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if total == 0 %}
+
+        <div class="history-empty">
+            <i class="fa-solid fa-user-doctor"></i>
+            <p>{{ t('vets_empty') }}</p>
+            {% if current_user.is_admin %}
+            <a href="/admin/vets" class="hero-btn">{{ t('vets_add_cta') }}</a>
+            {% endif %}
+        </div>
+
+    {% elif vets|length == 0 %}
+
+        <div class="history-empty">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <p>{{ t('vets_empty_filtered') }}</p>
+        </div>
+
+    {% else %}
+
+        <p class="vet-count">{{ vets|length }} {{ t('vets_found') }}</p>
+
+        <div class="vet-list">
+            {% for v in vets %}
+            <div class="vet-card">
+
+                <div class="vet-info">
+                    <h3 class="vet-name">
+                        {{ v.name }}
+                        {% if v.qualification %}<span class="vet-qual">{{ v.qualification }}</span>{% endif %}
+                    </h3>
+
+                    {% if v.emergency %}
+                    <span class="vet-badge-24"><i class="fa-solid fa-bolt"></i> {{ t('vets_emergency_badge') }}</span>
+                    {% endif %}
+
+                    {% if v.clinic %}
+                    <p class="vet-line"><i class="fa-solid fa-hospital"></i><span>{{ v.clinic }}</span></p>
+                    {% endif %}
+
+                    <p class="vet-line">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>{{ v.district }}{% if v.address %}, {{ v.address }}{% endif %}</span>
+                    </p>
+
+                    {% if v.hours %}
+                    <p class="vet-line"><i class="fa-regular fa-clock"></i><span>{{ t('vets_hours') }}: {{ v.hours }}</span></p>
+                    {% endif %}
+
+                    {% if v.animals %}
+                    <div class="vet-tags">
+                        {% for a in v.animals %}
+                        <span class="med-animal-tag">{{ t('animal_' ~ a) }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="vet-actions">
+                    <a href="tel:{{ v.tel }}" class="vet-call-btn"><i class="fa-solid fa-phone"></i> {{ t('vets_call') }}</a>
+                    <span class="vet-phone">{{ v.phone }}</span>
+                </div>
+
+            </div>
+            {% endfor %}
+        </div>
+
+    {% endif %}
+
+    <p class="vet-disclaimer"><i class="fa-solid fa-circle-info"></i> {{ t('vets_disclaimer') }}</p>
+
+</div>
+
+<footer class="site-footer">
+    <p>{{ t('site_footer') }}</p>
+    <p class="footer-note">{{ t('site_disclaimer') }}</p>
+</footer>
+
+</body>
+</html>
